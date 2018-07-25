@@ -1,0 +1,40 @@
+version: "3"
+services:
+
+  mongodb-server:
+    image: mongo
+    container_name: 'microservice-mongodb-test-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123      
+    networks:
+      - webnet 
+
+  # Run the spotify/kafka image which contains both kafka and zookeeper
+  kafka:
+    image: spotify/kafka
+    container_name: 'microservice-kafka-test-server'
+    ports:
+        - "2181:2181"
+        - "9092:9092"
+    environment:
+      - ADVERTISED_HOST=0.0.0.0
+      - ADVERTISED_PORT=9092
+
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock  
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+      
+    networks:
+      - webnet 
+
+networks:
+  webnet:

@@ -1,0 +1,31 @@
+{
+
+    "ConnectionStrings": {     
+      "CustomerDbConnection": "mongodb://root:pwd123@localhost:27017",
+
+      "KafkaConnection": "localhost:9092"
+    },
+  
+    "Logging": {
+      "IncludeScopes": true,
+      "LogLevel": {
+        "Default": "Debug"
+      }
+    },
+
+    "SmtpServer": {
+      "Host": "smtp.gmail.com",
+      "Port": 587,
+      "EnableSSL": false,
+      "UserID": "",
+      "Password": "",
+
+      "MailboxName" : "microSERVICES",
+      "MailboxAddress" : "admin@microSERVICES.com"
+    },
+    
+    "TestSettings": {
+  
+    }
+  
+  }
