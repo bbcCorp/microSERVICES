@@ -13,15 +13,19 @@ services:
       - ./data/mongo:/data/db  
     networks:
       - microservices-backend
+      # Uncomment the following line if you want to access the db
+      # - microservices-frontend
 
   # Run the spotify/kafka image which contains both kafka and zookeeper
   kafka-server:
     image: spotify/kafka
+    container_name: 'microservice-kafka-server'
+    hostname: kafka-server
     ports:
-        - 2181:2181
-        - 9092:9092
+        - "2181:2181"
+        - "9092:9092"
     environment:
-      - ADVERTISED_HOST=0.0.0.0
+      - ADVERTISED_HOST=kafka-server
       - ADVERTISED_PORT=9092
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock  
@@ -29,21 +33,22 @@ services:
       replicas: 1
       restart_policy:
         # Immediately restart containers if one fails.
-        condition: on-failure    
+        condition: on-failure
     networks:
       - microservices-backend
 
   customer-api:
     image: microservices-api-customers:1.0.0
-    build: .
     container_name: 'microservices-customer-api'
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging  
       - ASPNETCORE_URLS=http://+:5000 
+      - MICROSERVICES_KafkaService__Server=kafka-server:9092
       - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
       - MICROSERVICES_Logging__LogFolder=/app/data/log
     depends_on:
       - mongodb-server
+      - kafka-server
     deploy:
       replicas: 2
       resources:
@@ -61,6 +66,60 @@ services:
       - ./data/api-customers:/app/data       
     networks:
       - microservices-frontend
+      - microservices-backend
+
+  microservices-service-notification:
+    image: microservices-service-notification:1.0.0
+    container_name: 'microservices-service-notification'
+    environment:
+      - MICROSERVICES_KafkaService__Server=kafka-server:9092
+      - MICROSERVICES_Logging__LogFolder=/app/data/log
+      - MICROSERVICES_SmtpService__UserID=TODO***FILL_THIS
+      - MICROSERVICES_SmtpService__Password=TODO***FILL_THIS
+    depends_on:
+      - kafka-server
+      - mongodb-server
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 500M
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    volumes: 
+      - ./data/service-notification:/app/data       
+    networks:
+      - microservices-frontend
+      - microservices-backend
+
+  microservices-service-replication:
+    image: microservices-service-replication:1.0.0
+    container_name: 'microservices-service-replication'
+    environment:
+      - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
+      - MICROSERVICES_KafkaService__Server=kafka-server:9092
+      - MICROSERVICES_Logging__LogFolder=/app/data/log
+    depends_on:
+      - kafka-server
+      - mongodb-server
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 500M
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    volumes: 
+      - ./data/service-replication:/app/data       
+    networks:
       - microservices-backend
 
 networks:

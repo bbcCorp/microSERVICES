@@ -48,7 +48,13 @@ namespace app.model.entities
         [JsonProperty]
         public bool deleted { get; set; } = false;  
 
-        public Customer() {}
+        public Customer() {
+            this.entityid = ObjectId.GenerateNewId().ToString();
+
+            this.name = "";
+            this.phone = "";
+            this.email = ""; 
+        }
 
         public Customer(string name, string phone, string email)
         {

@@ -33,14 +33,9 @@
 
   <!-- Include additional files while publishing this application -->
   <ItemGroup>
-    <Content Update="Dockerfile">
+    <Content Include="Dockerfile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content> 
-
-    <Content Update="nlog.config"  CopyToOutputDirectory="PreserveNewest">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    
+    </Content>    
   </ItemGroup>
 
 </Project>

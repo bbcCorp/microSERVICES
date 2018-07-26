@@ -43,6 +43,10 @@ namespace app.common.messaging.generic
         // Implement Consumer interface
         public IEnumerable<KMessage<T>> Consume(CancellationToken cancellationToken)
         {
+            if(this._config == null){
+                throw new InvalidOperationException("You need Setup Kafka config");
+            }
+
             _logger.LogDebug(LoggingEvents.Debug, $"Reading from Kafka streams.");
 
             var msgbuffer = new List<KMessage<T>>();
@@ -95,6 +99,10 @@ namespace app.common.messaging.generic
             Func<Message, Task> consumptionErrorHandler
         )
         {
+            if(this._config == null){
+                throw new InvalidOperationException("You need Setup Kafka config");
+            }
+
             _logger.LogDebug(LoggingEvents.Debug, $"Reading from Kafka streams.");
 
             using (var consumer = new Consumer<Null, T>(this._config, null, new AppWireSerializer<T>() ))
@@ -114,7 +122,13 @@ namespace app.common.messaging.generic
                         Message = msg.Value
                     };
 
-                    await messageHandler(payload);
+                    try {
+                        await messageHandler(payload);
+                    }
+                    catch(Exception ex){
+                        _logger.LogError(LoggingEvents.Error,ex,$"Message handler for topic:{msg.Topic} Offset:{msg.Offset.Value} resullted in error");
+                    }
+                    
                     await consumer.CommitAsync(msg);
                 };
 

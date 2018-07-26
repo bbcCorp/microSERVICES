@@ -30,9 +30,11 @@ namespace app.api.customers.Controllers
 
         private List<Guid> _evtHandlerLst;
 
-        private readonly KafkaProducer<AppEventArgs<Customer>> _appEventProducer;
-        private readonly KafkaProducer<EmailEventArgs> _notificationProducer;
+        private readonly app.common.messaging.generic.KafkaProducer<AppEventArgs<Customer>> _appEventProducer;
+        private readonly app.common.messaging.generic.KafkaProducer<EmailEventArgs> _notificationProducer;
     
+        private readonly string _notificationMsgQueueTopic;
+        private readonly string _crudMsgQueueTopic;
         public CustomersController(IConfiguration Configuration, LoggerFactory loggerFactory, IMapper mapper)
         {
             this._config = Configuration;
@@ -41,9 +43,18 @@ namespace app.api.customers.Controllers
 
 
             this._logger = loggerFactory.CreateLogger<CustomersController>();
+                    
+            // -------------- Setup Kafka AppEvent Producer ----------------------- //
+            this._crudMsgQueueTopic = Configuration["KafkaService:Topic"];
+            this._appEventProducer = new app.common.messaging.generic.KafkaProducer<AppEventArgs<Customer>>(loggerFactory);
+            this._appEventProducer.Setup(new Dictionary<string, object>
+            {
+                { "bootstrap.servers", this._config["KafkaService:Server"] }          
+            });
 
-            this._appEventProducer = new KafkaProducer<AppEventArgs<Customer>>(loggerFactory);
-            this._notificationProducer = new KafkaProducer<EmailEventArgs>(loggerFactory);
+            this._notificationMsgQueueTopic = Configuration["KafkaService:NotificationTopic"];
+            // -------------- Setup Kafka Notification Producer ----------------------- //
+            this._notificationProducer = new app.common.messaging.generic.KafkaProducer<EmailEventArgs>(loggerFactory);
             this._notificationProducer.Setup(new Dictionary<string, object>
             {
                 { "bootstrap.servers", this._config["KafkaService:Server"] }          
@@ -69,7 +80,12 @@ namespace app.api.customers.Controllers
                 return Task.Run( async () =>
                 {
                     this._logger.LogTrace(LoggingEvents.Trace, $"Creating update stream message for evt:{evt.appEventType} for Customer:{evt.afterChange.entityid}");
-                    await this._appEventProducer.ProduceAsync(this._config["KafkaService:Topic"], evt);                    
+                    
+                    // Required to fix serialization error during Insert op
+                    if(evt.appEventType==AppEventType.Insert){
+                        evt.beforeChange = new Customer();
+                    }
+                    await this._appEventProducer.ProduceAsync(this._crudMsgQueueTopic, evt);                    
                 });
             };
 
@@ -110,12 +126,19 @@ namespace app.api.customers.Controllers
                 return Task.Run( async () =>
                 {
                     this._logger.LogTrace(LoggingEvents.Trace, $"Creating notification message for evt:{evt.appEventType} for Customer:{evt.afterChange.entityid}");
-                    await this._notificationProducer.ProduceAsync(this._config["KafkaService:NotificationTopic"], notifyEvt);                    
+                    
+                    try{
+                        await this._notificationProducer.ProduceAsync(this._notificationMsgQueueTopic, notifyEvt);
+                    }
+                    catch(Exception ex){
+                       this._logger.LogError(LoggingEvents.Critical, ex, $"Error in steaming evt:{evt.appEventType} for Customer:{evt.afterChange.entityid}"); 
+                    }
+                                        
                 });
 
             };
             
-            // this._evtHandlerLst.Add(this._custrepo.Subscribe(AppEventType.Any, evtStreamHandler));
+            this._evtHandlerLst.Add(this._custrepo.Subscribe(AppEventType.Any, evtStreamHandler));
             this._evtHandlerLst.Add(this._custrepo.Subscribe(AppEventType.Any, evtMailHandler));
 
         }

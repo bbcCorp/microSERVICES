@@ -74,6 +74,7 @@ namespace app.common.notification
 
         public async Task SendEmailAsync(List<string> emailsTO, string subject, string textMessage, string htmlMessage, List<string> emailsCC = null, List<string> emailsBCC = null)
         {
+            _logger.LogTrace(LoggingEvents.Trace, $"Sending out email with subject:{subject}");
             try
             {
                 var emailMessage = new MimeMessage();
@@ -113,7 +114,10 @@ namespace app.common.notification
                     // Note: only needed if the SMTP server requires authentication
                     client.Authenticate(_mailConfig.UserID, _mailConfig.Password);
 
+
                     await client.SendAsync(emailMessage);
+
+                    _logger.LogTrace(LoggingEvents.Trace, $"Sent out email with subject:{subject}");
 
                     client.Disconnect(true);
                 }

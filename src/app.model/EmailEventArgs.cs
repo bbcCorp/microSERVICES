@@ -11,6 +11,9 @@ namespace app.model
         [JsonProperty]
         public Guid id { get; private set; } = Guid.NewGuid();
 
+        public int retries { get; set; } = 0;
+        public List<string> retryLog { get; set; }
+
         [JsonProperty]
         public DateTime event_ts { get; private set; } = DateTime.UtcNow;
 

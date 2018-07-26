@@ -24,9 +24,16 @@
 
   <!-- Include additional files while publishing this application -->
   <ItemGroup>
-    <Content Update="nlog.config"  CopyToOutputDirectory="PreserveNewest">
+    <Content Include="appsettings.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup> 
+    <Content Include="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>
+
   
 </Project>

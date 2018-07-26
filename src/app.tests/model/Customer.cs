@@ -43,6 +43,12 @@ namespace app.tests.model
         [JsonProperty]
         public bool deleted { get; set; } = false;
 
+        public Customer(){
+            this.entityid = ObjectId.GenerateNewId().ToString();
+
+            this.name = "";
+            this.phone = "";            
+        }
         public Customer(string name, string phone)
         {
             this.entityid = ObjectId.GenerateNewId().ToString();

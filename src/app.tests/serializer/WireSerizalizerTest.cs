@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using app.tests.model;
 using app.common.serialization;
+using app.model;
 
 
 // dotnet test --filter FullyQualifiedName~AppWireSerializerTest
@@ -57,6 +58,33 @@ namespace app.tests.email
             this.testLogger.LogDebug($"*** Deserialized:\n{reconstructed.ToJson()}");
 
             // Assert.Equal(entity, reconstructed);
+
+        }
+
+
+        [Fact]
+        public void AppWireSerializerTest003_SerializeCustomerAppEvent_ExpectNoExceptions()
+        {
+            var sz = new AppWireSerializer<AppEventArgs<Customer>>();
+            
+            Customer entity = new Customer("CustomerMasterRepositoryTest001_cname", "1-800-start");
+            
+            AppEventArgs<Customer> evt = new AppEventArgs<Customer>(){
+                beforeChange = new Customer(),
+                afterChange = entity,
+                appEventType = AppEventType.Insert
+            };
+
+            this.testLogger.LogDebug($"*** Original:\n{entity.ToJson()}");
+
+            sz.Serialize(evt);
+            var serialized = sz.GetSerializedData();
+
+            sz.Reset();
+            var reconstructed = sz.Deserialize(serialized);
+            this.testLogger.LogDebug($"*** Deserialized:\n{reconstructed.ToJson()}");
+
+            Assert.Equal(evt.id, reconstructed.id);
 
         }
 

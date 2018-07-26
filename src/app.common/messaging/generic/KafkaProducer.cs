@@ -43,14 +43,24 @@ namespace app.common.messaging.generic
 
         public async Task ProduceAsync(string topic, T val)
         {   
-            using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>()))
-            {
-                var dr = await producer.ProduceAsync(topic, null, val);
-                
-                _logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
-                
-                producer.Flush(100);
+            if(this._config == null){
+                throw new InvalidOperationException("You need Setup Kafka config");
+            }
 
+            try{
+                using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>()))
+                {
+                    var dr = await producer.ProduceAsync(topic, null, val);
+                    
+                    this._logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
+                    
+                    producer.Flush(100);
+
+                }
+            }
+            catch(Exception ex){
+                this._logger.LogError(LoggingEvents.Error, ex, $"Error in ProduceAsync"); 
+                throw;
             }
         }
 
@@ -61,14 +71,24 @@ namespace app.common.messaging.generic
 
         public async Task ProduceAsync(string topic, T val, int partition)
         {
-            using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>() ))            
-            {
-                var dr = await producer.ProduceAsync(topic, null, val, partition);
-                
-                _logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
-                
-                producer.Flush(100);
+            if(this._config == null){
+                throw new InvalidOperationException("You need Setup Kafka config");
+            }
 
+            try{
+                using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>() ))            
+                {
+                    var dr = await producer.ProduceAsync(topic, null, val, partition);
+                    
+                    _logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
+                    
+                    producer.Flush(100);
+
+                }
+            }
+            catch(Exception ex){
+                this._logger.LogError(LoggingEvents.Error, ex, $"Error in ProduceAsync"); 
+                throw;
             }
         }
 
