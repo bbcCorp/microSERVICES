@@ -5,4 +5,4 @@ COPY . /app
 WORKDIR /app
 
 # Run dotnet when the container launches
-CMD ["dotnet", "app.services.replication.dll"]
+ENTRYPOINT ["dotnet", "app.services.replication.dll"]

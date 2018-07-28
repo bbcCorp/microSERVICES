@@ -27,6 +27,7 @@ services:
     environment:
       - ADVERTISED_HOST=kafka-server
       - ADVERTISED_PORT=9092
+      - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION-FAILED,MICROSERVICE-CUSTOMER-UPDATES
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock  
     deploy:

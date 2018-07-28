@@ -20,6 +20,7 @@ namespace app.common.messaging.generic
     {
         private readonly ILogger<KafkaProducer<T>> _logger;
         private Dictionary<string, object> _config;
+        private Producer<Null, T> _producer;
 
         public KafkaProducer(ILoggerFactory loggerFactory)
         {
@@ -29,10 +30,17 @@ namespace app.common.messaging.generic
             this._logger = loggerFactory.CreateLogger<KafkaProducer<T>>();
         }
 
-        public void Setup(Dictionary<string, object> config){
-            
+        public void Setup(Dictionary<string, object> config)
+        {
+            if (config == null)
+            {
+                throw new ArgumentException("Config is required to setup Kafka Producer");
+            }
+
             _logger.LogTrace(LoggingEvents.Trace, $"Setting up Kafka streams.");
             this._config = config; 
+
+            this._producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>());
         }
 
         // Producer interface
@@ -43,20 +51,19 @@ namespace app.common.messaging.generic
 
         public async Task ProduceAsync(string topic, T val)
         {   
-            if(this._config == null){
-                throw new InvalidOperationException("You need Setup Kafka config");
+            if(this._producer == null){
+                throw new InvalidOperationException("You need to setup Kafka Producer before you can publish messages");
             }
 
             try{
-                using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>()))
-                {
-                    var dr = await producer.ProduceAsync(topic, null, val);
+
+                    var dr = await this._producer.ProduceAsync(topic, null, val);
                     
                     this._logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
                     
-                    producer.Flush(100);
+                    this._producer.Flush(100);
 
-                }
+                
             }
             catch(Exception ex){
                 this._logger.LogError(LoggingEvents.Error, ex, $"Error in ProduceAsync"); 
@@ -71,20 +78,19 @@ namespace app.common.messaging.generic
 
         public async Task ProduceAsync(string topic, T val, int partition)
         {
-            if(this._config == null){
-                throw new InvalidOperationException("You need Setup Kafka config");
+            if(this._producer == null){
+                throw new InvalidOperationException("You need to setup Kafka Producer before you can publish messages");
             }
 
             try{
-                using (var producer = new Producer<Null, T>(this._config, null, new AppWireSerializer<T>() ))            
-                {
-                    var dr = await producer.ProduceAsync(topic, null, val, partition);
+
+                    var dr = await this._producer.ProduceAsync(topic, null, val, partition);
                     
                     _logger.LogTrace(LoggingEvents.Trace,$"Delivered '{dr.Value}' to: {dr.TopicPartitionOffset}");                    
                     
-                    producer.Flush(100);
+                    this._producer.Flush(100);
 
-                }
+                
             }
             catch(Exception ex){
                 this._logger.LogError(LoggingEvents.Error, ex, $"Error in ProduceAsync"); 
@@ -95,6 +101,7 @@ namespace app.common.messaging.generic
         public void Dispose()
         {
             _logger.LogDebug(LoggingEvents.Debug, $"Disposing KafkaProducer Producer.");
+            this._producer.Dispose();
         }
     }
 }

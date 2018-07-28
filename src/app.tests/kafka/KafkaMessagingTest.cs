@@ -47,11 +47,13 @@ namespace app.tests.kafka
         [Fact]
         public async Task KafkaMessagingTest001_PublishConsumeUsingStringMessage_ExpectNoExceptions()
         {
+            this.testLogger.LogDebug("*** KafkaMessagingTest001 ***");
+
             var topic = $"{TestTopic}_Test001_{Guid.NewGuid()}";
 
             AppEventArgs<Customer> evt = this.__getEvent();
 
-            var kProducer = new KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
+            var kProducer = new app.common.messaging.simple.KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
             var producerConfig = new Dictionary<string, object>
             {
                 { "bootstrap.servers", this.serverAddress }          
@@ -61,7 +63,7 @@ namespace app.tests.kafka
             await kProducer.ProduceAsync(topic, evt);
             kProducer.Dispose();
 
-            var kConsumer = new KafkaConsumer(this.loggerFactory);            
+            var kConsumer = new app.common.messaging.simple.KafkaConsumer(this.loggerFactory);            
             var customerConfig = new Dictionary<string, object>
             {
                 { "bootstrap.servers", this.serverAddress },
@@ -95,9 +97,11 @@ namespace app.tests.kafka
         [Fact]
         public async Task KafkaMessagingTest002_PublishConsumeBulkMessages_ExpectNoExceptions()
         {
+            this.testLogger.LogDebug("*** KafkaMessagingTest002 ***");
+
             var topic = $"{TestTopic}_Test002_{Guid.NewGuid()}";
 
-            var kProducer = new KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
+            var kProducer = new app.common.messaging.simple.KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
 
             // Config for fast synchronous write without buffering
             var producerConfig = new Dictionary<string, object>
@@ -125,7 +129,7 @@ namespace app.tests.kafka
             this.testLogger.LogInformation($"Took {opTimer.Elapsed.TotalSeconds} sec to send 100 events"); 
             kProducer.Dispose();
            
-            var kConsumer = new KafkaConsumer(this.loggerFactory);            
+            var kConsumer = new app.common.messaging.simple.KafkaConsumer(this.loggerFactory);            
             var customerConfig = new Dictionary<string, object>
             {
                 { "bootstrap.servers", this.serverAddress },
@@ -165,10 +169,11 @@ namespace app.tests.kafka
         [Fact]
         public async Task KafkaMessagingTest003_PublishNotificationMessages_ExpectNoExceptions()
         {
-            //var topic = $"{TestTopic}_Test003_{Guid.NewGuid()}";
+            this.testLogger.LogDebug("*** KafkaMessagingTest003 ***");
+
             var topic = "MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION";
 
-            var kProducer = new KafkaProducer<EmailEventArgs>(this.loggerFactory);
+            var kProducer = new app.common.messaging.generic.KafkaProducer<EmailEventArgs>(this.loggerFactory);
 
             // Config for fast synchronous write without buffering
             var producerConfig = new Dictionary<string, object>
@@ -206,12 +211,15 @@ namespace app.tests.kafka
         }
 
 
-        // [Fact]
+        [Fact]
         public async Task KafkaMessagingTest004_PublishConsumeBulkMessagesUsingWire_ExpectNoExceptions()
         {
-            var topic = $"{TestTopic}_Test002_{Guid.NewGuid()}";
+            this.testLogger.LogDebug("*** KafkaMessagingTest004 ***");
 
-            var kProducer = new KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
+            // Use pre-defined test topic - checkout performance
+            var topic = TestTopic;
+            const int testCount = 1000; 
+            var kProducer = new app.common.messaging.simple.KafkaProducer<AppEventArgs<Customer>>(this.loggerFactory);
             
 
             // Config for fast synchronous write without buffering
@@ -220,6 +228,7 @@ namespace app.tests.kafka
                 { "bootstrap.servers", this.serverAddress },
                 
                 { "retries", 0 },
+                { "socket.blocking.max.ms", 1 },
                 { "queue.buffering.max.ms", 0 },
                 { "batch.num.messages", 1 },
                 { "socket.nagle.disable", true }
@@ -227,17 +236,22 @@ namespace app.tests.kafka
 
             kProducer.Setup(producerConfig);
 
-            // Generate 100 events
+            // Generate 1000 events
             var opTimer = Stopwatch.StartNew();
-            for(int i=0; i<100;i++){
+            
+            Task[] tasks = new Task[testCount];
+            for(int i=0; i<testCount;i++){
                 AppEventArgs<Customer> evt = this.__getEvent();
 
                 // We want these events going off as soon as possible
-                await kProducer.ProduceAsync(topic, evt);
+                tasks[i] = kProducer.ProduceAsync(topic, evt);
                 // kProducer.ProduceAsync(topic, evt);
             }
+            await Task.WhenAll(tasks);
+            tasks = null;
             opTimer.Stop();
-            this.testLogger.LogInformation($"KafkaProducer ::Took {opTimer.Elapsed.TotalSeconds} sec to send 100 events"); 
+
+            this.testLogger.LogInformation($"KafkaProducer ::Took {opTimer.Elapsed.TotalSeconds} sec to send {testCount} events"); 
             kProducer.Dispose();
 
             // Test Wire based Kafka Producer
@@ -246,15 +260,17 @@ namespace app.tests.kafka
 
             // Generate 1000 events
             opTimer = Stopwatch.StartNew();
-            for(int i=0; i<100;i++){
+            tasks = new Task[testCount];
+            for(int i=0; i<testCount;i++){
                 AppEventArgs<Customer> evt = this.__getEvent();
 
                 // We want these events going off as soon as possible
-                await kProducer2.ProduceAsync(topic, evt);
+                tasks[i] = kProducer2.ProduceAsync(topic, evt);
                 // kProducer.ProduceAsync(topic, evt);
             }
+            await Task.WhenAll(tasks);
             opTimer.Stop();
-            this.testLogger.LogInformation($"KafkaProducer2::Took {opTimer.Elapsed.TotalSeconds} sec to send 100 events"); 
+            this.testLogger.LogInformation($"KafkaProducer2::Took {opTimer.Elapsed.TotalSeconds} sec to send {testCount} events"); 
             kProducer2.Dispose();
 
         }
@@ -262,6 +278,8 @@ namespace app.tests.kafka
         [Fact]
         public async Task KafkaMessagingTest005_PublishConsumeUsingPOCOMessage_ExpectNoExceptions()
         {
+            this.testLogger.LogDebug("*** KafkaMessagingTest005 ***");
+
             var topic = $"{TestTopic}_Test001_{Guid.NewGuid()}";
 
             AppEventArgs<Customer> evt = this.__getEvent();

@@ -19,6 +19,7 @@ mkdir -p $PUBLISH_FOLDER
 
 echo "Publishing to $PUBLISH_FOLDER"
 echo "[`date +%Y%m%d_%H:%M:%S`] Building Release files for api-customers:$RVERSION"
+dotnet restore "../src/app.api.customers/app.api.customers.csproj"
 dotnet publish "../src/app.api.customers/app.api.customers.csproj"  --output $PUBLISH_FOLDER --framework netcoreapp2.0 --configuration $RENV
 
 cd $PUBLISH_FOLDER
@@ -34,6 +35,7 @@ mkdir -p $PUBLISH_FOLDER
 
 echo "Publishing to $PUBLISH_FOLDER"
 echo "[`date +%Y%m%d_%H:%M:%S`] Building Release files for service-notification:$RVERSION"
+dotnet restore "../src/app.services.email/app.services.email.csproj"
 dotnet publish "../src/app.services.email/app.services.email.csproj"  --output $PUBLISH_FOLDER --framework netcoreapp2.0 --configuration $RENV
 
 cd $PUBLISH_FOLDER
@@ -49,6 +51,7 @@ mkdir -p $PUBLISH_FOLDER
 
 echo "Publishing to $PUBLISH_FOLDER"
 echo "[`date +%Y%m%d_%H:%M:%S`] Building Release files for service-replication:$RVERSION"
+dotnet restore "../src/app.services.replication/app.services.replication.csproj"
 dotnet publish "../src/app.services.replication/app.services.replication.csproj"  --output $PUBLISH_FOLDER --framework netcoreapp2.0 --configuration $RENV
 
 cd $PUBLISH_FOLDER

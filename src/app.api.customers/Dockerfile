@@ -8,4 +8,4 @@ WORKDIR /app
 EXPOSE 5000/tcp
 
 # Run dotnet when the container launches
-CMD ["dotnet", "app.api.customers.dll"]
+ENTRYPOINT ["dotnet", "app.api.customers.dll"]

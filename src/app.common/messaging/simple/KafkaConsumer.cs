@@ -12,15 +12,17 @@ using app.model;
 using System.Text;
 using System.Threading;
 
-namespace app.common.messaging
+namespace app.common.messaging.simple
 {
     // Kafka Consumer using simple string based messaging
-    public class KafkaConsumer : IAppKafkaMessageConsumer , IDisposable
+    public class KafkaConsumer : IAppKafkaMessageConsumer, IDisposable
     {
         private readonly ILogger<KafkaConsumer> _logger;
         private Dictionary<string, object> _config;
 
         private List<string> _topics;
+
+        private Consumer<Null, string> _consumer;
 
         public KafkaConsumer(ILoggerFactory loggerFactory)
         {
@@ -30,65 +32,79 @@ namespace app.common.messaging
             this._logger = loggerFactory.CreateLogger<KafkaConsumer>();
         }
 
-        public void Setup(Dictionary<string, object> config, List<string> topics){
+        public void Setup(Dictionary<string, object> config, List<string> topics)
+        {
+            if (config == null)
+            {
+                throw new ArgumentException("Config is required to setup Kafka Consumer");
+            }
             
             _logger.LogTrace(LoggingEvents.Trace, $"Setting up Kafka streams.");
 
-            this._config = config; 
-            this._topics = topics;            
+            this._config = config;
+            this._topics = topics;
+
+            this._consumer = new Consumer<Null, string>(this._config, null, new StringDeserializer(Encoding.UTF8));
         }
 
         // Implement Consumer interface
         public IEnumerable<KMessage> Consume(CancellationToken cancellationToken)
         {
+            if (this._consumer == null)
+            {
+                throw new InvalidOperationException("You need to setup Kafka Consumer before you can consume messages");
+            }
+
             _logger.LogDebug(LoggingEvents.Debug, $"Reading from Kafka streams.");
 
             List<KMessage> msgbuffer = new List<KMessage>();
 
-            using (var consumer = new Consumer<Null, string>(this._config, null, new StringDeserializer(Encoding.UTF8)))
-            {
-                consumer.Subscribe(this._topics);
 
-                consumer.OnMessage += (_, msg) =>
-                {
+            this._consumer.Subscribe(this._topics);
+
+            this._consumer.OnMessage += (_, msg) =>
+            {
 
                     // _logger.LogTrace(LoggingEvents.Trace,$"Read '{msg.Value}' from: {msg.TopicPartitionOffset}");
                     // _logger.LogTrace(LoggingEvents.Trace,$"Topic: {msg.Topic} Partition: {msg.Partition} Offset: {msg.Offset} {msg.Value}");
-                    
-                    consumer.CommitAsync(msg);
 
-                    var payload = new KMessage(){
-                        Topic = msg.Topic,
-                        Partition = msg.Partition,
-                        Offset = msg.Offset.Value,
-                        Message = msg.Value
-                    };
-                    msgbuffer.Add(payload);
-                };
+                    this._consumer.CommitAsync(msg);
 
-                consumer.OnError += (_, error)
-                    => _logger.LogError(LoggingEvents.Error,$"Error: {error}");
-
-                consumer.OnConsumeError += (_, msg)
-                    => _logger.LogError(LoggingEvents.Error,$"Consume error ({msg.TopicPartitionOffset}): {msg.Error}");
-
-                while ((cancellationToken == null) || (!cancellationToken.IsCancellationRequested))
+                var payload = new KMessage()
                 {
-                    consumer.Poll(TimeSpan.FromMilliseconds(100));
-                    
-                    if(msgbuffer.Count > 0){
-                        foreach(var msg in msgbuffer){
-                            yield return msg;
-                        }                        
-                        msgbuffer.Clear();
+                    Topic = msg.Topic,
+                    Partition = msg.Partition,
+                    Offset = msg.Offset.Value,
+                    Message = msg.Value
+                };
+                msgbuffer.Add(payload);
+            };
+
+            this._consumer.OnError += (_, error)
+                => _logger.LogError(LoggingEvents.Error, $"Error: {error}");
+
+            this._consumer.OnConsumeError += (_, msg)
+                => _logger.LogError(LoggingEvents.Error, $"Consume error ({msg.TopicPartitionOffset}): {msg.Error}");
+
+            while ((cancellationToken == null) || (!cancellationToken.IsCancellationRequested))
+            {
+                this._consumer.Poll(TimeSpan.FromMilliseconds(100));
+
+                if (msgbuffer.Count > 0)
+                {
+                    foreach (var msg in msgbuffer)
+                    {
+                        yield return msg;
                     }
+                    msgbuffer.Clear();
                 }
             }
+
 
         }
 
         // Implement Consumer interface
-        public void Consume(CancellationToken cancellationToken, 
+        public void Consume(CancellationToken cancellationToken,
             Func<KMessage, Task> messageHandler,
             Func<Error, Task> errorHandler,
             Func<Message, Task> consumptionErrorHandler
@@ -96,54 +112,63 @@ namespace app.common.messaging
         {
             _logger.LogDebug(LoggingEvents.Debug, $"Reading from Kafka streams.");
 
-            using (var consumer = new Consumer<Null, string>(this._config, null, new StringDeserializer(Encoding.UTF8)))
+            if (this._consumer == null)
             {
-                consumer.Subscribe(this._topics);
+                throw new InvalidOperationException("You need to setup Kafka Consumer before you can consume messages");
+            }
 
-                consumer.OnMessage += async (_, msg) =>
-                {
+
+            this._consumer.Subscribe(this._topics);
+
+            this._consumer.OnMessage += async (_, msg) =>
+            {
 
                     // _logger.LogTrace(LoggingEvents.Trace,$"Read '{msg.Value}' from: {msg.TopicPartitionOffset}");
                     // _logger.LogTrace(LoggingEvents.Trace,$"Topic: {msg.Topic} Partition: {msg.Partition} Offset: {msg.Offset} {msg.Value}");
-                    
-                    var payload = new KMessage(){
-                        Topic = msg.Topic,
-                        Partition = msg.Partition,
-                        Offset = msg.Offset.Value,
-                        Message = msg.Value
-                    };
-                    await messageHandler(payload);
-                    await consumer.CommitAsync(msg);
 
-                };
-
-                consumer.OnError += async (_, error)  => 
+                    var payload = new KMessage()
                 {
-                    _logger.LogError(LoggingEvents.Error,$"Error: {error}");
-                    if(errorHandler != null){
-                        await errorHandler(error);
-                    }
+                    Topic = msg.Topic,
+                    Partition = msg.Partition,
+                    Offset = msg.Offset.Value,
+                    Message = msg.Value
                 };
+                await messageHandler(payload);
+                await this._consumer.CommitAsync(msg);
 
-                consumer.OnConsumeError += async (_, msg) => {
-                    _logger.LogError(LoggingEvents.Error,$"Consume error ({msg.TopicPartitionOffset}): {msg.Error}");
+            };
 
-                    if(consumptionErrorHandler !=null){
-                        await consumptionErrorHandler(msg);
-                    }
-                };
-
-                while ((cancellationToken == null) || (!cancellationToken.IsCancellationRequested))
+            this._consumer.OnError += async (_, error) =>
+            {
+                _logger.LogError(LoggingEvents.Error, $"Error: {error}");
+                if (errorHandler != null)
                 {
-                    consumer.Poll(TimeSpan.FromMilliseconds(100));
+                    await errorHandler(error);
                 }
+            };
+
+            this._consumer.OnConsumeError += async (_, msg) =>
+            {
+                _logger.LogError(LoggingEvents.Error, $"Consume error ({msg.TopicPartitionOffset}): {msg.Error}");
+
+                if (consumptionErrorHandler != null)
+                {
+                    await consumptionErrorHandler(msg);
+                }
+            };
+
+            while ((cancellationToken == null) || (!cancellationToken.IsCancellationRequested))
+            {
+                this._consumer.Poll(TimeSpan.FromMilliseconds(100));
             }
+
 
         }
 
         public void Dispose()
         {
             _logger.LogDebug(LoggingEvents.Debug, $"Disposing KafkaConsumer.");
+            this._consumer.Dispose();
         }
 
     }
