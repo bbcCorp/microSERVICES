@@ -37,5 +37,19 @@ services:
     networks:
       - webnet 
 
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    container_name: elasticsearch-demoapp
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - webnet
+
 networks:
   webnet:

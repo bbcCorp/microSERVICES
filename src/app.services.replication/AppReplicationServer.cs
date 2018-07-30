@@ -10,10 +10,15 @@ using Microsoft.Extensions.Logging;
 
 using app.model;
 using app.model.entities;
+
 using app.data;
+using app.data.mongo;
+using app.data.elastic;
+
 using app.common;
 using app.common.messaging;
 using app.common.messaging.generic;
+
 
 namespace app.services.replication
 {
@@ -32,6 +37,8 @@ namespace app.services.replication
         private readonly app.common.messaging.generic.KafkaConsumer<AppEventArgs<Customer>> _appEventMsgConsumer;
 
         private MongoRepository<Customer> _custrepo = null;
+
+        private readonly ElasticRepository<Customer> _searchrepo;
 
         public AppReplicationServer(ILoggerFactory loggerFactory, IConfigurationRoot Configuration)
         {
@@ -79,6 +86,13 @@ namespace app.services.replication
                 Configuration["ConnectionStrings:CustomerDb:url"], 
                 Configuration["ConnectionStrings:CustomerDb:db"], 
                 Configuration["ConnectionStrings:CustomerDb:collection"]);
+
+
+            // ------------- Configure ElasticSearch repository -------------------------------- //
+            this._searchrepo = new ElasticRepository<Customer>(loggerFactory, 
+                Configuration["ElasticService:ServerUrl"], null, 
+                "customer", 
+                Configuration["ElasticService:AppIndex"]);    
         }
 
         public void StartServer(CancellationToken cancellationToken)
@@ -101,7 +115,8 @@ namespace app.services.replication
                     switch(evt.appEventType){
                         case AppEventType.Insert:
                                 _logger.LogTrace(LoggingEvents.Trace, String.Format("Adding new Customer:{0}", customer.name));
-                                await _custrepo.AddAsync(customer);                        
+                                await _custrepo.AddAsync(customer);    
+                                await this._searchrepo.AddAsync(customer);                    
                             break; 
                             
                         case AppEventType.Delete:
@@ -113,12 +128,17 @@ namespace app.services.replication
                             else {
                                 await _custrepo.DeleteAsync(customer.entityid);
                             }
+
+                            if(this._searchrepo.Exists(customer.id)){
+                                await this._searchrepo.DeleteAsync(customer.id);
+                            }
                             
                             break;   
                         
                         case AppEventType.Update:
                             _logger.LogTrace(LoggingEvents.Trace, $"Processing request to update customer:{customer.entityid}");
                             await _custrepo.UpdateAsync(customer);
+                            await _searchrepo.UpdateAsync(customer);
                             break; 
                         
                         default:

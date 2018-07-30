@@ -24,9 +24,10 @@ Note:
 The application has the following high-level components
 * AspNetCore WebAPI
 * MongoDB as data repository
+* ElasticSearch as a search server
 * Apache Kafka based messaging 
 * Email notification service
-* Data replication service
+* Data replication service 
 
 We will use Docker containers for the infrastructure blocks.
 
@@ -53,6 +54,7 @@ Make sure that `testsettings.json` is updated with SMTP server details if you wa
 
 * Microsoft AspNetCore and DotNetCore
 * MongoDB
+* ElasticSearch
 * Apache Kafka
 * Docker
 * Confluent.Kafka 

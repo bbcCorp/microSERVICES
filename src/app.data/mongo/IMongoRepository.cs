@@ -6,7 +6,7 @@ using MongoDB.Bson;
 
 using app.model;
 
-namespace app.data
+namespace app.data.mongo
 {
     public interface IMongoRepository<T>: IEvented<T>, IRepository<T> where T : IDbEntity<T>
     {

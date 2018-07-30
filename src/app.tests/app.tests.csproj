@@ -29,4 +29,15 @@
     <ProjectReference Include="../app.common/app.common.csproj" />    
   </ItemGroup> 
 
+  <!-- Include additional files while publishing this application -->
+  <ItemGroup>
+    <Content Include="testsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+  </ItemGroup>
+  
+
 </Project>

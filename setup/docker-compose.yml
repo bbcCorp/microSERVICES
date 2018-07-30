@@ -3,6 +3,7 @@ services:
 
   mongodb-server:
     image: mongo
+    container_name: 'microservice-mongo-server'
     restart: always
     ports:
       - 27017:27017
@@ -13,8 +14,23 @@ services:
       - ./data/mongo:/data/db  
     networks:
       - microservices-backend
-      # Uncomment the following line if you want to access the db
-      # - microservices-frontend
+      # Comment the following line if you don't want external access the mongodb
+      - microservices-frontend
+
+  elasticsearch-server:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    container_name: 'microservice-search-server'
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+    ports:
+      - 9200:9200
+      - 9300:9300 
+    networks:
+      - microservices-backend
+      # Comment the following line if you don't want external access the mongodb
+      - microservices-frontend
 
   # Run the spotify/kafka image which contains both kafka and zookeeper
   kafka-server:
@@ -103,10 +119,12 @@ services:
     environment:
       - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
       - MICROSERVICES_KafkaService__Server=kafka-server:9092
+      - MICROSERVICES_ElasticService__ServerUrl=http://elasticsearch-server:9200
       - MICROSERVICES_Logging__LogFolder=/app/data/log
     depends_on:
       - kafka-server
       - mongodb-server
+      - elasticsearch-server
     deploy:
       replicas: 1
       resources:

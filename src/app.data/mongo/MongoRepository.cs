@@ -19,7 +19,7 @@ using app.model;
 using System.Runtime.Serialization;
 
 
-namespace app.data
+namespace app.data.mongo
 {
     // Repository for MongoDB 
     public class MongoRepository<T> : EventedRepository<T>, IMongoRepository<T>  where T: IDbEntity<T>

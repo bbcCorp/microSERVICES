@@ -8,6 +8,7 @@ using System.Diagnostics;
 
 using app.model;
 using app.data;
+using app.data.mongo;
 using app.tests.model;
 
 namespace app.tests.mongo

@@ -6,6 +6,11 @@
       "KafkaConnection": "localhost:9092"
     },
   
+    "ElasticService": { 
+      "ServerUrl": "http://localhost:9200",
+      "AppIndex" : "testidx"
+    },    
+
     "Logging": {
       "IncludeScopes": true,
       "LogLevel": {

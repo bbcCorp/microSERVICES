@@ -12,6 +12,7 @@ using AutoMapper;
 using app.model;
 using app.model.entities;
 using app.data;
+using app.data.mongo;
 using app.api.customers.Model;
 
 using app.common.messaging.generic;

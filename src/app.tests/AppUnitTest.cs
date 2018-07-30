@@ -16,7 +16,8 @@ namespace app.tests
         public AppUnitTest()
         {
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../../.."))
+                // .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../../.."))
+                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory()))
                 .AddJsonFile("testsettings.json");
 
             this.Configuration = builder.Build();
