@@ -52,7 +52,7 @@ namespace app.web.customerMgmt
                     config.AddEnvironmentVariables("MICROSERVICES_");
                 })
                 .UseContentRoot(Directory.GetCurrentDirectory())  
-                .UseLibuv()                  
+                .UseLibuv()
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {
