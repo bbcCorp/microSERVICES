@@ -1,4 +1,4 @@
-FROM microsoft/dotnet
+FROM microsoft/dotnet:2.1-runtime
 
 RUN mkdir -p /app/data/logs
 COPY . /app

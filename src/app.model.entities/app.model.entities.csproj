@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../app.model/app.model.csproj" />
-    <ProjectReference Include="../app.data/app.data.csproj" />
   </ItemGroup> 
 
 </Project>

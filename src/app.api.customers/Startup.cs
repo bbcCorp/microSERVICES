@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.HttpOverrides;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,7 +21,7 @@ using app.model;
 using app.model.entities;
 using app.data;
 using app.api.customers.Model;
-using Microsoft.AspNetCore.HttpOverrides;
+
 using app.api.customers.Extensions;
 
 namespace app.api.customers
@@ -63,7 +67,14 @@ namespace app.api.customers
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            else
+            {
+                // Use HTTPS in non-development environment
+                app.UseHttpsRedirection();
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+        
             app.UseCors("CorsPolicy");
 
             // This is required to work with Reverse-proxies

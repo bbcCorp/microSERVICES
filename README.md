@@ -6,11 +6,18 @@ Developed by: Bedabrata Chatterjee
 ## Introduction
 This application explores a simple service based architecture involving an extremely simple Customer Entity.  
 
-The idea is to have simple decoupled systems that is event driven. Customer API exposes simple CRUD APIs. APIs commiy changes to a data repository which is responsible for generating a stream of events. In this app, we will be working with two types of events - one for CRUD and other for notification. 
+We have a simple web application that is used to manage Customers. The application does not convern itself with the business of storing and retrieving entities, or enforcing any other functionalities like notification or data replication. Instead it relies on simple WebAPIs.
+
+Customer API exposes simple CRUD APIs. APIs commiy changes to a data repository which is responsible for generating a stream of events. In this app, we will be working with two types of events - one for CRUD and other for notification. 
 
 The CRUD events are designed to be self contained and can be used to propagate application state. Both before and after change information is contained in the same event message. We can use this for data replication.
 
 The Email event contains all information required to send out email as well as retry counter and failure logs.
+
+There will be one or more services that will pick up the events and trigger the required actions. 
+
+The idea is to have simple decoupled systems that is event driven. Each component is individually scalable.
+
 
 Note: 
 1. With this kind of design, the notification and data replication services are not closely coupled with online/CRUD operations. 
@@ -22,7 +29,8 @@ Note:
 
 ### Components
 The application has the following high-level components
-* AspNetCore WebAPI
+* AspNetCore WebAPI2
+* AspNetCore 2.1 Web application with Razor Pages 
 * MongoDB as data repository
 * ElasticSearch as a search server
 * Apache Kafka based messaging 
@@ -37,9 +45,9 @@ Application events will be saved in Kafka using the topic `MICROSERVICE-CUSTOMER
 Email notification server (app.services.email) pick up notification events and sends out the email messages. We use Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION` for the notifications. Retries are built into the notification system using the same queue. After 3 attempts, we write the notification attempt to Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION-FAILED`
 
 ## Application Setup
-The `setup` folder has the scripts required to build and start the production-like environment with all the infrastructure pieces. 
+The `setup` folder has all the scripts required to build and start the production-like environment with all the infrastructure pieces. 
 
-Use the `build.sh` script to build the application and `startup.sh` to bring up all the containers required to test the application.
+Use the `build.sh` script to build the docker images for application and `startup.sh` to bring up all the containers required to test the application. You can bring down the setup by running the script `shutdown.sh`
 
 
 ## Running Unit Tests 

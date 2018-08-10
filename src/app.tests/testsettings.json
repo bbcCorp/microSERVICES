@@ -9,8 +9,8 @@
     "ElasticService": { 
       "ServerUrl": "http://localhost:9200",
       "AppIndex" : "testidx"
-    },    
-
+    },  
+    
     "Logging": {
       "IncludeScopes": true,
       "LogLevel": {

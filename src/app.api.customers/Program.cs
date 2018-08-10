@@ -22,7 +22,7 @@ namespace app.api.customers
             var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
-                BuildWebHost(args).Run();
+                CreateWebHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace app.api.customers
             }
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
@@ -49,17 +49,17 @@ namespace app.api.customers
 
                     config.AddEnvironmentVariables("ASPNETCORE_");
                     config.AddEnvironmentVariables("MICROSERVICES_");
-                })
-                .UseKestrel()
-                .UseIISIntegration()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                })  
+                .UseContentRoot(Directory.GetCurrentDirectory())      
+                .UseLibuv()    
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 })
-                .UseNLog()  // NLog: setup NLog for Dependency injection                
-                .Build();
+                .UseNLog()  // NLog: setup NLog for Dependency injection                   
+                ;
+
     }
 }

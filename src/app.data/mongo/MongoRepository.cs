@@ -91,6 +91,7 @@ namespace app.data.mongo
             });
         }
 
+
         public List<T> Get()
         {
             return this.GetAsync().Result;
@@ -209,6 +210,26 @@ namespace app.data.mongo
             return false;
         }
 
+        public bool Exists(long id)
+        {
+            return this.ExistsAsync(id).Result;
+        }
+
+        public async Task<bool> ExistsAsync(long id)
+        {
+            _logger.LogTrace(LoggingEvents.Trace, $"Checking for entity that matches given predicate");
+
+            var result = await this._collection.AsQueryable<T>()
+                .Where(e => e.deleted == false && e.id == id)                          
+                .FirstOrDefaultAsync();
+
+            if(result != null){
+                return true;
+            }
+
+            return false;
+        }
+
         public long Count()
         {
             return this.CountAsync().Result;
@@ -235,7 +256,7 @@ namespace app.data.mongo
 
         public async Task UpdateAsync(T entity) {
 
-            _logger.LogTrace(LoggingEvents.Trace, $"U entitpdatingy with entityid:{entity.entityid.ToString()}");
+            _logger.LogTrace(LoggingEvents.Trace, $"Updating entity with entityid:{entity.entityid.ToString()}");
 
             AppEventArgs<T> e = new AppEventArgs<T>();
             e.appEventType = AppEventType.Update;
@@ -352,13 +373,12 @@ namespace app.data.mongo
 
         }
 
-
-        public long DeleteAll()
+        public void DeleteAll()
         {
-            return this.DeleteAllAsync().Result;
+            this.DeleteAllAsync().Wait();
         }
 
-        public async Task<long> DeleteAllAsync()
+        public async Task DeleteAllAsync()
         {
             _logger.LogTrace(LoggingEvents.Trace, $"Deleting all entities");
 
@@ -386,19 +406,36 @@ namespace app.data.mongo
                 this.OnAnyEvent(e);
             }
 
-            return result.ModifiedCount;         
+            _logger.LogTrace(LoggingEvents.Trace, $"Deleted {result.ModifiedCount} entities.");                    
                         
         }
 
 
         public void Delete(long id)
         {
-            throw new NotImplementedException();
+            this.DeleteAsync(id).Wait();
         }
 
-        public Task DeleteAsync(long id)
+        public async Task DeleteAsync(long id)
         {
-            throw new NotImplementedException();
+            _logger.LogTrace(LoggingEvents.Trace, $"Updating entity with id:{id}");
+
+            AppEventArgs<T> e = new AppEventArgs<T>();
+            e.appEventType = AppEventType.Delete;
+            
+            var entity = await this.GetByIdAsync(id);
+             
+            e.beforeChange = entity.Clone();
+
+            entity.deleted = true;
+            entity.updatedDate = DateTime.UtcNow;
+
+            var filter = Builders<T>.Filter.Eq("id", id);
+
+            var result = await this._collection.FindOneAndReplaceAsync(filter, entity);
+            e.afterChange = entity;
+            this.OnEvent(AppEventType.Update, e);
+            this.OnAnyEvent(e);
         }
     }
 }

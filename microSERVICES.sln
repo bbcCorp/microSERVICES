@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app.api.customers", "src\app.api.customers\app.api.customers.csproj", "{6080F092-62CE-465C-A25A-17B7E79709F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app.services.replication", "src\app.services.replication\app.services.replication.csproj", "{A525A098-6D96-42D3-9877-EA2C70BC0484}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app.web.customerMgmt", "src\app.web.customerMgmt\app.web.customerMgmt.csproj", "{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -130,6 +132,18 @@ Global
 		{A525A098-6D96-42D3-9877-EA2C70BC0484}.Release|x64.Build.0 = Release|x64
 		{A525A098-6D96-42D3-9877-EA2C70BC0484}.Release|x86.ActiveCfg = Release|x86
 		{A525A098-6D96-42D3-9877-EA2C70BC0484}.Release|x86.Build.0 = Release|x86
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|x64.Build.0 = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Debug|x86.Build.0 = Debug|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|x64.ActiveCfg = Release|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|x64.Build.0 = Release|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FB31E98A-8700-40C5-BB0F-5C2B540F2E4C} = {A06D2D23-A087-4A2E-9BBD-FB69061ADD9F}
@@ -140,5 +154,6 @@ Global
 		{32549F83-22DD-4F06-9FF3-29F9A2722600} = {A06D2D23-A087-4A2E-9BBD-FB69061ADD9F}
 		{6080F092-62CE-465C-A25A-17B7E79709F0} = {A06D2D23-A087-4A2E-9BBD-FB69061ADD9F}
 		{A525A098-6D96-42D3-9877-EA2C70BC0484} = {A06D2D23-A087-4A2E-9BBD-FB69061ADD9F}
+		{3110D4BF-F9B0-4B7F-B0CB-03CAB2DBD9CE} = {A06D2D23-A087-4A2E-9BBD-FB69061ADD9F}
 	EndGlobalSection
 EndGlobal

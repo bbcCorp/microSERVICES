@@ -31,6 +31,10 @@ namespace app.data
 
         Task<List<T>> GetAsync(Expression<Func<T, bool>> searchPredicate);
 
+
+        bool Exists(long id);
+        Task<bool> ExistsAsync(long id);
+        
         bool Exists(Expression<Func<T, bool>> searchPredicate);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> searchPredicate);
 
@@ -56,8 +60,8 @@ namespace app.data
         long Delete(Expression<Func<T, bool>> predicate);
         Task<long> DeleteAsync(Expression<Func<T, bool>> predicate);
 
-        long DeleteAll();
-        Task<long> DeleteAllAsync();
+        void DeleteAll();
+        Task DeleteAllAsync();
 
     }
 

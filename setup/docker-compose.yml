@@ -11,26 +11,13 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pwd123      
     volumes: 
-      - ./data/mongo:/data/db  
+      - ./data/mongo/db:/data/db  
+      - ./data/mongo/logs:/var/log/mongodb
     networks:
       - microservices-backend
-      # Comment the following line if you don't want external access the mongodb
-      - microservices-frontend
+      # Uncomment the following line if you want external access to the mongodb server
+      # - microservices-frontend
 
-  elasticsearch-server:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    container_name: 'microservice-search-server'
-    environment:
-      - discovery.type=single-node
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock 
-    ports:
-      - 9200:9200
-      - 9300:9300 
-    networks:
-      - microservices-backend
-      # Comment the following line if you don't want external access the mongodb
-      - microservices-frontend
 
   # Run the spotify/kafka image which contains both kafka and zookeeper
   kafka-server:
@@ -58,8 +45,11 @@ services:
     image: microservices-api-customers:1.0.0
     container_name: 'microservices-customer-api'
     environment:
-      - ASPNETCORE_ENVIRONMENT=Staging  
-      - ASPNETCORE_URLS=http://+:5000 
+      - ASPNETCORE_ENVIRONMENT=Development  
+      - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://+:5000;
+      - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://+:5001
+      - MICROSERVICES_Kestrel__Certificates__Default__Path=<path to .pfx file>
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>     
       - MICROSERVICES_KafkaService__Server=kafka-server:9092
       - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
       - MICROSERVICES_Logging__LogFolder=/app/data/log
@@ -78,9 +68,46 @@ services:
         max_attempts: 3
         window: 120s
     ports:
-      - 8080:5000
+      - 8090:5000
+      - 8091:5001     
     volumes: 
-      - ./data/api-customers:/app/data       
+      - ./data/api-customers:/app/data   
+      - ./certs:/app/https/    
+    networks:      
+      - microservices-backend
+      # Uncomment the following line if you want external access to the API service
+      - microservices-frontend
+
+  webapp-customermgmt:
+    image: microservices-web-customermgmt:1.0.0
+    container_name: 'microservices-web-customermgmt'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development  
+      - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://+:5000
+      - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://+:5001      
+      - MICROSERVICES_Kestrel__Certificates__Default__Path=<path to .pfx file>
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>  
+      - MICROSERVICES_API_URL=http://customer-api:8090/api/customers
+      - MICROSERVICES_Logging__LogFolder=/app/data/log
+    depends_on:
+      - customer-api
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 500M
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    ports:
+      - 8080:5000
+      - 8081:5001     
+    volumes: 
+      - ./data/webapp-customermgmt:/app/data  
+      - ./certs:/app/https/     
     networks:
       - microservices-frontend
       - microservices-backend
@@ -141,9 +168,24 @@ services:
     networks:
       - microservices-backend
 
+  elasticsearch-server:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    container_name: 'microservice-search-server'
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+    ports:
+      - 9200:9200
+      - 9300:9300 
+    networks:
+      - microservices-backend
+      # Uncomment the following line if you want external access for the elasticsearch
+      # - microservices-frontend
+
 networks:
   microservices-frontend:
     driver: bridge
   microservices-backend:
-    internal: true
+    # internal: true
     driver: bridge

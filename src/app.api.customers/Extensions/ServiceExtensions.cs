@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using app.model;
-using app.data;
-using app.api.customers.Model;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;

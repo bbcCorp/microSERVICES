@@ -1,0 +1,45 @@
+﻿@page
+@model EditModel
+@{
+    ViewData["Title"] = "Edit Customer";
+}
+
+<h2>@ViewData["Title"]</h2>
+<p>
+    <a asp-page="Index">Back to customer list</a>
+    <form method="post">
+
+        <div class="row">
+            @Model.ActionMessage
+            <hr/>
+            <span asp-validation-summary="All" class="text-danger"></span>
+        </div>
+
+        <input asp-for="Customer.id" type="hidden" class="form-control" />
+        <input asp-for="Customer.entityid" type="hidden" class="form-control" />
+
+        <div class="form-group">
+            <label asp-for="Customer.name"></label>
+            <input asp-for="Customer.name" class="form-control" />
+            <span asp-validation-for="Customer.name" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Customer.phone"></label>
+            <input asp-for="Customer.phone" class="form-control" />
+            <span asp-validation-for="Customer.phone" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Customer.email"></label>
+            <input asp-for="Customer.email" class="form-control" />
+            <span asp-validation-for="Customer.email" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-default">Save</button>
+    </form>
+</p>    
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
