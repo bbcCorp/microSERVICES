@@ -51,7 +51,8 @@ namespace app.api.customers
 
             services.ConfigureCors();
 
-            services.AddMvc();
+            // services.AddMvc();
+            services.AddMvcCore().AddJsonFormatters().AddDataAnnotations();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

@@ -50,8 +50,7 @@ namespace app.api.customers
                     config.AddEnvironmentVariables("ASPNETCORE_");
                     config.AddEnvironmentVariables("MICROSERVICES_");
                 })  
-                .UseContentRoot(Directory.GetCurrentDirectory())      
-                .UseLibuv()    
+                .UseContentRoot(Directory.GetCurrentDirectory())       
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {
