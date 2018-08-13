@@ -70,3 +70,32 @@ Make sure that `testsettings.json` is updated with SMTP server details if you wa
 * MailKit
 * AutoMapper
 * NLog
+
+## Running the application
+
+[On Linux and Mac]
+* Run the `build.sh` script to build the docker images. It will download the build and runtime images.
+
+* Once the docker images are ready, run the `startup.sh` script.
+
+* You can run the web application from the host machine using the url: `http://localhost:8080`
+
+* Run the `shutdown.sh` to tear down the deployment.
+
+NOTE: 
+
+* The setup partitions the network so that only the web application and the notification service can access the external network. The remaining services including the API and the MongoDB servers are on a backend network and would not be accesible. If you need to access them for developmental resons, update the `docker-compose.yml` file and uncomment the relevant lines in the `networks` section of the respective services.
+
+### Using HTTPS
+
+* To use HTTPS version of the web application, you will need to use a .pfx files that contain the public key file (SSL certificate file) and the associted password.
+
+* The `build.sh` script uses dotnet `dev-certs` command to generate a self-signed cert for localhost. The cert uses the default name and password and is stored in setup/certs folder. You may need to force your browser to trust the certificate if it is generated using the self-signed scheme. 
+
+* You can provide your own certificates in the cert folder, in which case the self-signed certificate generation step is skipped.
+
+* Update the `docker-compose.yml` with the path and password for the certificates. Update the keys containing the name - Kestrel__Certificates
+
+* For the web application update ASPNETCORE_ENVIRONMENT=Staging to force use of HTTPS over HTTP. 
+
+* From the host machine, you should now be able to access the application using the URL `https://localhost:8081/`

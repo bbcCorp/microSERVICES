@@ -45,11 +45,11 @@ services:
     image: microservices-api-customers:1.0.0
     container_name: 'microservices-customer-api'
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development  
+      - ASPNETCORE_ENVIRONMENT=Development
       - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000;
       - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001
       - MICROSERVICES_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password> 
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>
       - MICROSERVICES_KafkaService__Server=kafka-server:9092
       - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
       - MICROSERVICES_Logging__LogFolder=/app/data/log
@@ -82,11 +82,11 @@ services:
     image: microservices-web-customermgmt:1.0.0
     container_name: 'microservices-web-customermgmt'
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development  
+      - ASPNETCORE_ENVIRONMENT=Development
       - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000
       - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001      
       - MICROSERVICES_Kestrel__Certificates__Default__Path=<path to .pfx file>
-      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>            
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>
       - MICROSERVICES_API_URL=http://customer-api/api/customers
       - MICROSERVICES_Logging__LogFolder=/app/data/log
     depends_on:
