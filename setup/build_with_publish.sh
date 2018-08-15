@@ -46,6 +46,21 @@ cd $PUBLISH_FOLDER
 docker build -t microservices-web-customermgmt:$RVERSION . 
 echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-web-customermgmt:$RVERSION"
 
+## ----------------------- Build STS Service --------------------------- ##
+cd $CURRENT_DIR
+PUBLISH_FOLDER="$CURRENT_DIR/../build/microSERVICES-$RVERSION-$RDATE/microservices-service-sts"
+mkdir -p $PUBLISH_FOLDER
+
+echo "Publishing to $PUBLISH_FOLDER"
+echo "[`date +%Y%m%d_%H:%M:%S`] Building Release files for microservices-service-sts:$RVERSION"
+dotnet restore "../src/app.services.sts/app.services.sts.csproj"
+dotnet publish "../src/app.services.sts/app.services.sts.csproj"  --output $PUBLISH_FOLDER --framework netcoreapp2.1 --configuration $RENV
+
+cd $PUBLISH_FOLDER
+# Use the docker file to create a build a docker image 
+docker build -t microservices-service-sts:$RVERSION . 
+echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-service-sts:$RVERSION"
+
 ## ----------------------- Build Notification Service --------------------------- ##
 cd $CURRENT_DIR
 PUBLISH_FOLDER="$CURRENT_DIR/../build/microSERVICES-$RVERSION-$RDATE/service-notification"

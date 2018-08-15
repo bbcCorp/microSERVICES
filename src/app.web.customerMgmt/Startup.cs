@@ -38,6 +38,7 @@ namespace app.web.customerMgmt
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.ConfigureIdentity(Configuration);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -51,7 +52,7 @@ namespace app.web.customerMgmt
             }
             else
             {
-                app.UseHttpsRedirection();
+                app.UseHttpsRedirection();  
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
@@ -59,6 +60,8 @@ namespace app.web.customerMgmt
             
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            app.UseAuthentication();
 
             // This is required to work with Reverse-proxies
             app.UseForwardedHeaders();

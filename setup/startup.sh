@@ -11,6 +11,8 @@ fi
 
 
 # create the mapped directories used by docker the container volumes
+mkdir -p ./data/postgres/db
+mkdir -p ./data/postgres/logs
 mkdir -p ./data/mongo/db
 mkdir -p ./data/mongo/logs
 mkdir -p ./data/kafka
@@ -18,5 +20,19 @@ mkdir -p ./data/api-customers
 mkdir -p ./data/webapp-customermgmt
 mkdir -p ./data/service-notification
 mkdir -p ./data/service-replication
+mkdir -p ./data/identity-sts
 
-docker-compose up -d
+while test $# -gt 0; do
+  case "$1" in 
+      -d|--initdb)
+    echo "Setting up microSERVICE database"
+    cd ./db
+    # Run the initdb script to setup the database
+    bash ./initdb.sh
+    cd ..
+    break
+    ;;
+  esac
+done
+
+docker-compose up

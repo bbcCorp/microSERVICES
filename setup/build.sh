@@ -20,7 +20,6 @@ docker rm $(docker ps -a -q)
 cd ../src
 
 ## ----------------------- Build API --------------------------- ##
-docker build -t microservices-api-customers:1.0.0 -f api-customer.Dockerfile . 
 docker build -t microservices-api-customers:$RVERSION -f api-customer.Dockerfile . 
 echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-api-customers:$RVERSION"
 
@@ -35,6 +34,10 @@ echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-service-repli
 ## ----------------------- Build Customer Management WebApp --------------------------- ##
 docker build -t microservices-web-customermgmt:$RVERSION -f web-customermgmt.Dockerfile . 
 echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-web-customermgmt:$RVERSION"
+
+## ----------------------- Build STS Service --------------------------- ##
+docker build -t microservices-service-sts:$RVERSION -f service-sts.Dockerfile . 
+echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image microservices-service-sts:$RVERSION"
 
 # -------------------------------------------------------------------------------------- ##
 # Remove dangling images - one with <none>

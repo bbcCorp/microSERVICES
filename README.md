@@ -31,6 +31,7 @@ Note:
 The application has the following high-level components
 * AspNetCore WebAPI2
 * AspNetCore 2.1 Web application with Razor Pages 
+* IdentityServer 4 as STS
 * MongoDB as data repository
 * ElasticSearch as a search server
 * Apache Kafka based messaging 
@@ -61,6 +62,7 @@ Make sure that `testsettings.json` is updated with SMTP server details if you wa
 ## Tools, Framework and Libraries Used
 
 * Microsoft AspNetCore and DotNetCore
+* IdentityServer 4 
 * MongoDB
 * ElasticSearch
 * Apache Kafka
@@ -74,13 +76,15 @@ Make sure that `testsettings.json` is updated with SMTP server details if you wa
 ## Running the application
 
 [On Linux and Mac]
-* Run the `build.sh` script to build the docker images. It will download the build and runtime images.
+* Run the `build.sh` script to build the docker images. It will download the build and runtime images. 
 
-* Once the docker images are ready, run the `startup.sh` script.
+* Once the docker images are ready, we can run the application using the `startup.sh` script.
+
+* If you are running this application for the first time, you will need to setup the database. Use the command:`bash startup.sh --initdb`. In subsequent runs you can simply run the `bash startup.sh` script without the initdb flag.
 
 * You can run the web application from the host machine using the url: `http://localhost:8080`
 
-* Run the `shutdown.sh` to tear down the deployment.
+* Run the `bash shutdown.sh` to tear down the deployment.
 
 NOTE: 
 

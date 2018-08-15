@@ -1,6 +1,25 @@
 version: "3"
 services:
 
+  postgresql-server:
+    image: postgres:alpine
+    container_name: 'microservice-pgsql-server'
+    restart: always
+    ports:
+      - 5433:5432 
+    volumes:
+      - ./data/postgres/db:/var/lib/postgresql/data
+      - ./data/postgres/logs:/var/log/postgresql
+    environment:
+      POSTGRES_USER: postgres 
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: microSERVICE   
+      PGDATA: /var/lib/postgresql/data/pgdata       
+    networks:
+      - microservices-backend
+      # Uncomment the following line if you want external access to the postgresql server
+      # - microservices-frontend      
+
   mongodb-server:
     image: mongo
     container_name: 'microservice-mongo-server'
@@ -48,8 +67,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000;
       - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001
-      - MICROSERVICES_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>
+      # Update the following config with your cert details      
+      - MICROSERVICES_Kestrel__Certificates__Default__Path=/app/https/aspnetapp.pfx
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=crypticpassword        
       - MICROSERVICES_KafkaService__Server=kafka-server:9092
       - MICROSERVICES_ConnectionStrings__CustomerDb__url=mongodb://root:pwd123@mongodb-server:27017
       - MICROSERVICES_Logging__LogFolder=/app/data/log
@@ -85,12 +105,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000
       - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001      
-      - MICROSERVICES_Kestrel__Certificates__Default__Path=<path to .pfx file>
-      - MICROSERVICES_Kestrel__Certificates__Default__Password=<certificate password>
+      # Update the following config with your cert details      
+      - MICROSERVICES_Kestrel__Certificates__Default__Path=/app/https/aspnetapp.pfx
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=crypticpassword      
       - MICROSERVICES_API_URL=http://customer-api/api/customers
       - MICROSERVICES_Logging__LogFolder=/app/data/log
     depends_on:
       - customer-api
+      - postgresql-server
     deploy:
       replicas: 1
       resources:
@@ -182,6 +204,34 @@ services:
       - microservices-backend
       # Uncomment the following line if you want external access for the elasticsearch
       # - microservices-frontend
+
+
+  # Run the identity STS service
+  identity-sts:
+    image: microservices-service-sts:1.0.0
+    container_name: 'microservices-service-sts'
+    hostname: identity-sts
+    ports:
+        - "8099:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Update the following config with your cert details      
+      - MICROSERVICES_Kestrel__Certificates__Default__Path=/app/https/aspnetapp.pfx
+      - MICROSERVICES_Kestrel__Certificates__Default__Password=crypticpassword         
+      - MICROSERVICES_ConnectionStrings__IdentityDbConnection=Host=postgresql-server;Database=microSERVICE;User ID=postgres;Password=postgres123;Application Name=microSERVICE;Search Path=identity;Pooling=true;Minimum Pool Size=5;Maximum Pool Size=100;
+      - MICROSERVICES_WebClient__ClientId=customermgmt
+      - MICROSERVICES_WebClient__ClientName=CustomerMgmt Web Application
+      - MICROSERVICES_WebClient__RedirectUris=http://webapp-customermgmt/signin-oidc
+      - MICROSERVICES_WebClient__FrontChannelLogoutUri=http://webapp-customermgmt/signout-oidc
+      - MICROSERVICES_WebClient__PostLogoutRedirectUris=http://webapp-customermgmt/signout-callback-oidc    
+    depends_on:
+      - postgresql-server
+      # - webapp-customermgmt      
+    volumes: 
+      - ./data/identity-sts:/app/data  
+    networks:
+      - microservices-backend
+      - microservices-frontend
 
 networks:
   microservices-frontend:
