@@ -1,22 +1,19 @@
 ﻿@page
-@model EditModel
+@model NewModel
 @{
-    ViewData["Title"] = "Edit Customer";
+    ViewData["Title"] = "Create Customer";
 }
 
 <h2>@ViewData["Title"]</h2>
 <p>
     <a asp-page="Index">Back to customer list</a>
-    <form method="post">
+    <form  asp-area="Customers" method="post">
 
         <div class="row">
             @Model.ActionMessage
             <hr/>
             <span asp-validation-summary="All" class="text-danger"></span>
         </div>
-
-        <input asp-for="Customer.id" type="hidden" class="form-control" />
-        <input asp-for="Customer.entityid" type="hidden" class="form-control" />
 
         <div class="form-group">
             <label asp-for="Customer.name"></label>
@@ -29,7 +26,7 @@
             <input asp-for="Customer.phone" class="form-control" />
             <span asp-validation-for="Customer.phone" class="text-danger"></span>
         </div>
-
+        
         <div class="form-group">
             <label asp-for="Customer.email"></label>
             <input asp-for="Customer.email" class="form-control" />

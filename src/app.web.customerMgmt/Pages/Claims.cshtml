@@ -1,0 +1,18 @@
+﻿@page
+@model IdentityModel
+@{
+    ViewData["Title"] = "Claims List";
+}
+
+<h2>@ViewData["Title"]</h2>
+<p>
+    <h3>List of User Claims</h3>
+    <hr>
+    <dl>
+    @foreach (var claim in User.Claims)
+    {
+        <dt>@claim.Type</dt>
+        <dd>@claim.Value</dd>
+    }
+    </dl>
+</p>

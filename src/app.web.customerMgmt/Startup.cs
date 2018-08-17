@@ -41,6 +41,9 @@ namespace app.web.customerMgmt
             services.ConfigureIdentity(Configuration);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.ConfigureAuth(Configuration);
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

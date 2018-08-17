@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,17 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace app.web.customerMgmt.Pages
+namespace app.web.customerMgmt.Pages.Account
 {
-    public class IndexModel : PageModel
+    public class SigninModel : PageModel
     {
-        public void OnGet()
+        public IActionResult OnGet()
         {
-
-        }
-
-        public IActionResult OnGetLogin(){
             return Challenge(new AuthenticationProperties {
+                // Once login succeeds, we get back to the Index page
                 RedirectUri = "/Index",                
             }, "oidc");
         }

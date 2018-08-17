@@ -45,13 +45,14 @@ namespace app.services.sts
 
                     Console.WriteLine($"Creating claims for User:admin");
                     result = userMgr.AddClaimsAsync(admin, new Claim[]{
+                        new Claim("geo-location", "90.00000 0.00000"),
                         new Claim(JwtClaimTypes.Name, "Agent Smith"),
                         new Claim(JwtClaimTypes.GivenName, "admin"),
                         new Claim(JwtClaimTypes.FamilyName, "Smith"),
                         new Claim(JwtClaimTypes.Email, "bedabrata.chatterjee@gmail.com"),
                         new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
                         new Claim(JwtClaimTypes.WebSite, "https://github.com/bbcCorp/microSERVICES"),
-                        new Claim(JwtClaimTypes.Address, @"{ 'street_address': 'One Bangalore', 'locality': 'Bangalore', 'postal_code': 560024, 'country': 'India' }", IdentityServer4.IdentityServerConstants.ClaimValueTypes.Json)
+                        new Claim(JwtClaimTypes.Address, @"{ 'street_address': 'One North Pole', 'locality': 'North Pole', 'postal_code': H0H 0H0, 'country': 'Earth' }", IdentityServer4.IdentityServerConstants.ClaimValueTypes.Json)
                     }).Result;
                     if (!result.Succeeded)
                     {
@@ -84,6 +85,7 @@ namespace app.services.sts
 
                     Console.WriteLine("Adding claims for User:bbc");
                     result = userMgr.AddClaimsAsync(bbc, new Claim[]{
+                        new Claim("geo-location", "13.05387 77.59879"),
                         new Claim(JwtClaimTypes.Name, "Bedabrata Chatterjee"),
                         new Claim(JwtClaimTypes.GivenName, "Bedabrata"),
                         new Claim(JwtClaimTypes.FamilyName, "Chatterjee"),

@@ -59,6 +59,7 @@ services:
         condition: on-failure
     networks:
       - microservices-backend
+      # - microservices-frontend      
 
   customer-api:
     image: microservices-api-customers:1.0.0
@@ -215,6 +216,8 @@ services:
         - "8099:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000
+      - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001       
       # Update the following config with your cert details      
       - MICROSERVICES_Kestrel__Certificates__Default__Path=/app/https/aspnetapp.pfx
       - MICROSERVICES_Kestrel__Certificates__Default__Password=crypticpassword         

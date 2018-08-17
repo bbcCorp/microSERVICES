@@ -297,3 +297,4 @@ __pycache__/
 logs/
 nlogs/
 setup/data
+certs/

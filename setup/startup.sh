@@ -35,4 +35,4 @@ while test $# -gt 0; do
   esac
 done
 
-docker-compose up
+docker-compose up -d

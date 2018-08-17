@@ -14,9 +14,11 @@ using System.Net.Http.Headers;
 
 using app.model;
 using app.model.entities;
+using Microsoft.AspNetCore.Authorization;
 
-namespace app.web.customerMgmt.Pages
+namespace app.web.customerMgmt.Pages.Customers
 {
+    [Authorize]
     public class EditModel : PageModel
     {
         private readonly string apiPath;

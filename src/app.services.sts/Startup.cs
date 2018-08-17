@@ -54,7 +54,7 @@ namespace app.services.sts
                 options.Events.RaiseInformationEvents = true;
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
-            })
+            })                
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients(Configuration))
@@ -69,7 +69,11 @@ namespace app.services.sts
             }
             else
             {
+                // Need to pass a X509 cert or point to it. 
+                // builder.AddSigningCredential("CN=sts");
+
                 throw new Exception("need to configure key material");
+                
             }
 
             services.AddAuthentication();

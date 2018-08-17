@@ -5,6 +5,7 @@
 using IdentityServer4.Models;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using IdentityServer4;
 
 namespace app.services.sts
 {
@@ -16,6 +17,17 @@ namespace app.services.sts
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                new IdentityResources.Email(),
+                new IdentityResources.Phone(),
+                new IdentityResources.Address(),
+
+                // We create a custom identity resource to track user's geo-location
+                new IdentityResource {
+                    Name = "location",
+                    Description = "Access to user's location",
+                    UserClaims = { "geo-location" }
+                },
+                
             };
         }
 
@@ -44,20 +56,32 @@ namespace app.services.sts
                 },
 
                 // MVC client using hybrid flow
+                // Refer to https://hts.readthedocs.io/en/latest/configuration/clients.html
                 new Client
                 {
                     ClientId = configuration["WebClient:ClientId"],
                     ClientName = configuration["WebClient:ClientName"],
 
-                    AllowedGrantTypes = GrantTypes.HybridAndClientCredentials,
+                    AllowedGrantTypes = GrantTypes.Hybrid,
                     ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
 
-                    RedirectUris = { configuration["WebClient:RedirectUris"] },
+                    // Note: This has to be a list of urls that exactly match
+                    RedirectUris = new List<string>( configuration["WebClient:RedirectUris"].Split(';') ) ,
+
                     FrontChannelLogoutUri = configuration["WebClient:FrontChannelLogoutUri"],
-                    PostLogoutRedirectUris = { configuration["WebClient:PostLogoutRedirectUris"] },
+                    PostLogoutRedirectUris = new List<string>( configuration["WebClient:PostLogoutRedirectUris"].Split(';') ),
 
                     AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile", "api-customers" }
+
+                    AllowedScopes = new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        IdentityServerConstants.StandardScopes.Address,
+                        IdentityServerConstants.StandardScopes.Phone ,
+                        // "api-customers"
+                    }
                 },
 
                 // // SPA client using implicit flow

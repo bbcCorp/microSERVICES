@@ -12,7 +12,11 @@ using NLog.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using app.identity;
-
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Builder;
+using IdentityModel.AspNetCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace app.web.customerMgmt.Extensions
 {
@@ -39,8 +43,54 @@ namespace app.web.customerMgmt.Extensions
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.ConfigureApplicationCookie(options =>
+        }
+
+        public static void ConfigureAuth(this IServiceCollection services, IConfiguration Configuration)
+        { 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            // Configuring Authorization to use Identity Server
+            services.AddAuthentication(options =>
             {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                // Refer to https://hts.readthedocs.io/en/latest/configuration/mvc.html
+
+                options.SignInScheme = "Cookies";
+
+                options.Authority = Configuration["AUTH_SERVER"];
+                options.RequireHttpsMetadata = false;
+
+                // Use the same name as used in IdentityServer Config as ClientId
+                options.ClientId = "customermgmt";
+                options.ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0";
+                options.ResponseType = "code id_token";
+                options.GetClaimsFromUserInfoEndpoint = true;                
+                options.SaveTokens = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name",
+                    RoleClaimType = "role"
+                };
+
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");                
+                options.Scope.Add("email");
+                options.Scope.Add("address");
+                options.Scope.Add("phone");
+                // options.Scope.Add("api-customers");
+
+            });
+
+
+            services.ConfigureApplicationCookie(options =>
+            {                
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromHours(1);
                 options.LoginPath = "/Account/Signin";

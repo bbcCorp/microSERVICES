@@ -14,9 +14,11 @@ using Microsoft.Extensions.Configuration;
 
 using app.model;
 using app.model.entities;
+using Microsoft.AspNetCore.Authorization;
 
-namespace app.web.customerMgmt.Pages
+namespace app.web.customerMgmt.Pages.Customers
 {
+    [Authorize]
     public class NewModel : PageModel
     {
         private readonly string apiPath;

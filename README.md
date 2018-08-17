@@ -2,6 +2,7 @@
 
 Developed by: Bedabrata Chatterjee
 
+WARNING: This is an actively developed project so things may be broken.  
 
 ## Introduction
 This application explores a simple service based architecture involving an extremely simple Customer Entity.  
@@ -103,3 +104,13 @@ NOTE:
 * For the web application update ASPNETCORE_ENVIRONMENT=Staging to force use of HTTPS over HTTP. 
 
 * From the host machine, you should now be able to access the application using the URL `https://localhost:8081/`
+
+
+### Local Dev Setup
+
+There are appsettings.Development.json included for most projects. Ensure that the paths are updated to your setup.
+The URLs to access the server are as follows:-
+
+STS Server          : "http://localhost:5000" , "https://localhost:5001"
+CustomerMgmt WebApp : "http://localhost:5005" , "https://localhost:5006"
+Customer API        : "http://localhost:5010" , "https://localhost:5011"
