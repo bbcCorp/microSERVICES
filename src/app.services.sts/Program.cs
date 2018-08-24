@@ -48,13 +48,19 @@ namespace app.services.sts
                     .UseStartup<Startup>()
                     .UseSerilog((context, configuration) =>
                     {
+                        var logFolder = context.Configuration["Logging:LogFolder"];
+                        System.IO.Directory.CreateDirectory(logFolder);
+
+                        var logFile = $"{logFolder}/identityserver4_log.txt";
+                        System.Console.WriteLine($"Logging to : {logFile}");
+                        
                         configuration
                             .MinimumLevel.Debug()
                             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                             .MinimumLevel.Override("System", LogEventLevel.Warning)
                             .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
                             .Enrich.FromLogContext()
-                            .WriteTo.File(@"identityserver4_log.txt")
+                            .WriteTo.File(logFile)
                             .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate);
                     })
                     .Build();

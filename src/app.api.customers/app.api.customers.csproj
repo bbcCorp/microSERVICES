@@ -2,10 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
+
+    <Content Include="appsettings.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    
+    <Content Include="appsettings.Development.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+
+      <!-- Include additional files while publishing this application -->
+    <Content Include="Dockerfile">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>  
+
+    <Content Include="NLog.config">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+
   </ItemGroup>
 
   <ItemGroup>
@@ -17,7 +40,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
     <PackageReference Include="MongoDB.Bson" Version="2.7.0" />
-    <PackageReference Include="NLog" Version="4.5.8" />
+    <PackageReference Include="NLog" Version="4.5.8" /> 
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.6.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
@@ -32,12 +55,5 @@
     <ProjectReference Include="../app.data/app.data.csproj" />
     <ProjectReference Include="../app.common/app.common.csproj" />
   </ItemGroup> 
-
-  <!-- Include additional files while publishing this application -->
-  <ItemGroup>
-    <Content Include="Dockerfile">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>    
-  </ItemGroup>
 
 </Project>

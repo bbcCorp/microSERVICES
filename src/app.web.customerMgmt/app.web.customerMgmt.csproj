@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,8 @@
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.1" /> 
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.1.1" />  
-    <PackageReference Include="NLog" Version="4.5.8" />
+    <PackageReference Include="NLog" Version="4.5.8" />  
+    <PackageReference Include="NLog.Config" Version="4.5.8" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.6.0" />
   </ItemGroup>
 
@@ -28,10 +30,24 @@
 
   <!-- Include additional files while publishing this application -->
   <ItemGroup>
+    <Folder Include="wwwroot\" />
+
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+
     <Content Include="Dockerfile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content> 
-       
+
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+
   </ItemGroup>
 
 </Project>

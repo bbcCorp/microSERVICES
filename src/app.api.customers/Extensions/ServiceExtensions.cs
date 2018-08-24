@@ -28,7 +28,7 @@ namespace app.api.customers.Extensions
             var loggerFactory = new LoggerFactory();
             
             loggerFactory.AddNLog(new NLogProviderOptions { CaptureMessageTemplates = true, CaptureMessageProperties =true });
-            NLog.LogManager.LoadConfiguration("nlog.config");            
+            NLog.LogManager.LoadConfiguration("NLog.config");            
 
             services.AddSingleton<ILoggerFactory>(loggerFactory);
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));

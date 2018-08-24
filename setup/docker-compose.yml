@@ -72,6 +72,7 @@ services:
         - "8099:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - MICROSERVICES_Logging__LogFolder=/app/data/log
       - MICROSERVICES_Kestrel__EndPoints__Http__Url=http://*:5000
       - MICROSERVICES_Kestrel__EndPoints__Https__Url=https://*:5001       
       # Update the following config with your cert details      

@@ -48,7 +48,7 @@ namespace app.services.email
                 CaptureMessageTemplates = true, 
                 CaptureMessageProperties = true });
 
-            NLog.LogManager.LoadConfiguration("nlog.config");
+            NLog.LogManager.LoadConfiguration("NLog.config");
 
         }
 

@@ -41,26 +41,8 @@ The application has the following high-level components
 
 We will use Docker containers for the infrastructure blocks.
 
-### Message Flows
-Application events will be saved in Kafka using the topic `MICROSERVICE-CUSTOMER-UPDATES`. These can be used to sync up other dependent applications/services or event to reconstruct the MongoDB collection, by simply replaying the kafka logs.
 
-Email notification server (app.services.email) pick up notification events and sends out the email messages. We use Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION` for the notifications. Retries are built into the notification system using the same queue. After 3 attempts, we write the notification attempt to Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION-FAILED`
-
-## Application Setup
-The `setup` folder has all the scripts required to build and start the production-like environment with all the infrastructure pieces. 
-
-Use the `build.sh` script to build the docker images for application and `startup.sh` to bring up all the containers required to test the application. You can bring down the setup by running the script `shutdown.sh`
-
-
-## Running Unit Tests 
-
-The app.tests project contains the unit test for the various components used in the project.
-
-Go to the test folder and bring up the test containers `docker-compose up -d`
-
-Make sure that `testsettings.json` is updated with SMTP server details if you want to test the email service.
-
-## Tools, Framework and Libraries Used
+### Tools, Framework and Libraries Used
 
 * Microsoft AspNetCore and DotNetCore
 * IdentityServer 4 
@@ -74,7 +56,33 @@ Make sure that `testsettings.json` is updated with SMTP server details if you wa
 * AutoMapper
 * NLog
 
-## Running the application
+
+## Message Flows
+Application events will be saved in Kafka using the topic `MICROSERVICE-CUSTOMER-UPDATES`. These can be used to sync up other dependent applications/services or event to reconstruct the MongoDB collection, by simply replaying the kafka logs.
+
+Email notification server (app.services.email) pick up notification events and sends out the email messages. We use Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION` for the notifications. Retries are built into the notification system using the same queue. After 3 attempts, we write the notification attempt to Kafka topic `MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION-FAILED`
+
+## Application Setup
+The `setup` folder has all the scripts required to build and start the production-like environment with all the infrastructure pieces. 
+
+Use the `build.sh` script to build the docker images for application and `startup.sh` to bring up all the containers required to test the application. You can bring down the setup by running the script `shutdown.sh`
+
+### Generate a self-signed certificate
+If you have never used a certificate before, you can generate one using the following command
+```
+$ dotnet dev-certs https -ep ~/.aspnet/https/aspnetapp.pfx -p crypticpassword
+```
+The name of the cert will be aspnetapp.pfx and password would be crypticpassword. Make sure to update all the appsettings.Development.json files that reference the cert file.
+
+### Running Unit Tests 
+
+The app.tests project contains the unit test for the various components used in the project.
+
+Go to the test folder and bring up the test containers `docker-compose up -d`
+
+Make sure that `testsettings.json` is updated with SMTP server details if you want to test the email service.
+
+## Running the application using Docker containers
 
 [On Linux and Mac]
 * Run the `build.sh` script to build the docker images. It will download the build and runtime images. 
@@ -108,9 +116,9 @@ NOTE:
 
 ### Local Dev Setup
 
-There are appsettings.Development.json included for most projects. Ensure that the paths are updated to your setup.
-The URLs to access the server are as follows:-
+There are appsettings.Development.json included for most projects. Ensure that the paths are updated based on your setup.
+You can run individual projects using the command: `dotnet run environment=Development`. The URLs to access the servers are as follows:-
 
-STS Server          : "http://localhost:5000" , "https://localhost:5001"
-CustomerMgmt WebApp : "http://localhost:5005" , "https://localhost:5006"
-Customer API        : "http://localhost:5010" , "https://localhost:5011"
+* STS Server          : "http://localhost:5000" , "https://localhost:5001"
+* CustomerMgmt WebApp : "http://localhost:5005" , "https://localhost:5006"
+* Customer API        : "http://localhost:5010" , "https://localhost:5011"
